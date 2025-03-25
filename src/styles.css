@@ -1,0 +1,61 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.app {
+    display: flex;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #2C3E50;
+    color: white;
+    padding: 20px;
+    height: 100vh;
+}
+
+.sidebar h2 {
+    text-align: center;
+}
+
+.sidebar a {
+    display: block;
+    padding: 10px;
+    color: white;
+    text-decoration: none;
+}
+
+.sidebar a:hover {
+    background-color: #34495E;
+}
+
+.content {
+    flex-grow: 1;
+}
+
+.header {
+    background-color: #3498DB;
+    padding: 15px;
+    text-align: center;
+    color: white;
+}
+
+.main-content {
+    padding: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th, table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f4f4f4;
+}
