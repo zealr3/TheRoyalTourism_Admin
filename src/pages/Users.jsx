@@ -9,14 +9,12 @@ const Users = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                // Get the token from localStorage (set by AdminLogin)
                 const token = localStorage.getItem("token");
 
                 if (!token) {
                     throw new Error("No token found. Please log in.");
                 }
 
-                // Fetch users from the backend
                 const response = await axios.get("http://localhost:5000/api/users", {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -35,32 +33,34 @@ const Users = () => {
         fetchUsers();
     }, []);
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>{error}</div>;
+    if (loading) return <div className="text-center text-gray-700 text-xl mt-10">Loading...</div>;
+    if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
 
     return (
-        <div>
-            <h1>Users</h1>
-            <table border="1" style={{ width: "100%", textAlign: "left" }}>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map(user => (
-                        <tr key={user.id}>
-                            <td>{user.id}</td>
-                            <td>{user.fullname}</td>
-                            <td>{user.email}</td>
-                            <td>{user.role}</td>
+        <div className="p-6 bg-gray-100 min-h-screen">
+            <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Users</h1>
+            <div className="overflow-x-auto">
+                <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
+                    <thead className="bg-blue-500 text-black">
+                        <tr>
+                            <th className="py-3 px-4 text-left">ID</th>
+                            <th className="py-3 px-4 text-left">Full Name</th>
+                            <th className="py-3 px-4 text-left">Email</th>
+                            <th className="py-3 px-4 text-left">Role</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {users.map(user => (
+                            <tr key={user.id} className="border-b hover:bg-gray-200 transition">
+                                <td className="py-3 px-4">{user.id}</td>
+                                <td className="py-3 px-4">{user.fullname}</td>
+                                <td className="py-3 px-4">{user.email}</td>
+                                <td className="py-3 px-4">{user.role}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

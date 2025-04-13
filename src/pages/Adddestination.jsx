@@ -1,167 +1,87 @@
-import React, { useState } from 'react';
-import '../styles.css';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const AddDestination = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    image: '',
-    description: '',
-    dtype: 'domestic' // Default selection
+  const [destinationData, setDestinationData] = useState({
+    name: "",
+    image: "",
+    description: "",
+    dtype: "domestic",
   });
 
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [destError, setDestError] = useState("");
+  const [destSuccess, setDestSuccess] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        console.log("API Response:", response.data);
+        const response = await axios.get("http://localhost:5000/api/destinations");
+        fetchDestinations(response.data);
+        console.log("API Response:", response.data);
+      } catch (error) {
+        console.error("Error fetching destinations:", error);
+      }
+    };
+    fetchDestinations();
+  }, []);
+
+  const handleDestinationChange = (e) => {
+    setDestinationData({
+      ...destinationData,
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleDestinationSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setDestError("");
+    setDestSuccess("");
 
     try {
-      const response = await axios.post('http://localhost:5000/api/destinations', formData);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setDestError("❌ Please sign in as an admin first.");
+        return;
+      }
+
+      const response = await axios.post("http://localhost:5000/api/destinations", destinationData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       if (response.status === 201) {
-        setSuccess('✅ Destination added successfully!');
-        setFormData({ name: '', image: '', description: '', dtype: 'domestic' }); // Clear the form
+        setDestSuccess("✅ Destination added successfully!");
+        setDestinationData({ name: "", image: "", description: "", dtype: "domestic" });
       } else {
-        setError('❌ Error adding destination.');
+        setDestError("❌ Error adding destination.");
       }
     } catch (err) {
-      console.error(err);
-      setError('❌ Error adding destination. Check console for more details.');
+      console.error("Axios Error:", err.response?.status, err.response?.data);
+      setDestError("❌ Error adding destination. Check console for details.");
     }
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.title}>Add New Destination</h2>
-      
-      {error && <p style={styles.error}>{error}</p>}
-      {success && <p style={styles.success}>{success}</p>}
-      
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>Name:</label>
-          <input 
-            type="text" 
-            name="name" 
-            value={formData.name} 
-            onChange={handleChange} 
-            style={styles.input} 
-            required 
-          />
-        </div>
-
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>Image URL:</label>
-          <input 
-            type="text" 
-            name="image" 
-            value={formData.image} 
-            onChange={handleChange} 
-            style={styles.input} 
-            required 
-          />
-        </div>
-
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>Description:</label>
-          <textarea 
-            name="description" 
-            value={formData.description} 
-            onChange={handleChange} 
-            style={styles.textarea} 
-            required 
-          />
-        </div>
-
-        <div style={styles.inputGroup}>
-          <label style={styles.label}>Type:</label>
-          <select 
-            name="dtype" 
-            value={formData.dtype} 
-            onChange={handleChange} 
-            style={styles.select} 
-            required
-          >
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
+      <div className="w-full max-w-md bg-white shadow-md rounded-lg p-6">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Add New Destination</h2>
+        {destError && <p className="text-red-500 text-center mb-2">{destError}</p>}
+        {destSuccess && <p className="text-green-500 text-center mb-2">{destSuccess}</p>}
+        <form onSubmit={handleDestinationSubmit} className="space-y-4">
+          <input type="text" name="name" value={destinationData.name} onChange={handleDestinationChange} placeholder="Destination Name" className="w-full px-3 py-2 border rounded-md" required />
+          <input type="text" name="image" value={destinationData.image} onChange={handleDestinationChange} placeholder="Image URL" className="w-full px-3 py-2 border rounded-md" required />
+          <textarea name="description" value={destinationData.description} onChange={handleDestinationChange} placeholder="Description" className="w-full px-3 py-2 border rounded-md" required></textarea>
+          <select name="dtype" value={destinationData.dtype} onChange={handleDestinationChange} className="w-full px-3 py-2 border rounded-md" required>
             <option value="domestic">Domestic</option>
             <option value="international">International</option>
           </select>
-        </div>
-
-        <button type="submit" style={styles.button}>Add Destination</button>
-      </form>
+          <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Add Destination</button>
+        </form>
+      </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    maxWidth: '600px',
-    margin: 'auto',
-    padding: '20px',
-    backgroundColor: '#fff',
-    borderRadius: '8px',
-    boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '20px',
-    color: '#333'
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px'
-  },
-  inputGroup: {
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  label: {
-    marginBottom: '5px',
-    fontWeight: 'bold'
-  },
-  input: {
-    padding: '10px',
-    borderRadius: '5px',
-    border: '1px solid #ddd'
-  },
-  textarea: {
-    padding: '10px',
-    borderRadius: '5px',
-    border: '1px solid #ddd',
-    minHeight: '100px'
-  },
-  select: {
-    padding: '10px',
-    borderRadius: '5px',
-    border: '1px solid #ddd'
-  },
-  button: {
-    padding: '10px 15px',
-    borderRadius: '5px',
-    border: 'none',
-    backgroundColor: '#007bff',
-    color: '#fff',
-    cursor: 'pointer',
-    marginTop: '10px'
-  },
-  error: {
-    color: 'red',
-    textAlign: 'center'
-  },
-  success: {
-    color: 'green',
-    textAlign: 'center'
-  }
 };
 
 export default AddDestination;

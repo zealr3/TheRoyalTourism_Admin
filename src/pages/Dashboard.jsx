@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../Dashboard.css";
-
 const Dashboard = () => {
   const [totalUsers, setTotalUsers] = useState(0);
-  const [userCount, setUserCount] = useState(0); // Non-admin users
+  const [userCount, setUserCount] = useState(0);
   const [adminCount, setAdminCount] = useState(0);
   const [totalDestinations, setTotalDestinations] = useState(0);
   const [domesticCount, setDomesticCount] = useState(0);
@@ -16,44 +14,27 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("token");
-
       if (!token) {
         setError("No authentication token found. Please log in.");
         navigate("/admin");
         return;
       }
 
-      console.log("Token:", token); // Log the token for debugging
-
       try {
-        const config = {
-          headers: { Authorization: `Bearer ${token}` },
-        };
-
-        // Fetch user and admin counts
-        console.log("Fetching from /api/users/count...");
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+        
         const userCountResponse = await axios.get("http://localhost:5000/api/users/count", config);
-        console.log("Response from /api/users/count:", userCountResponse.data);
         const { total, users, admins } = userCountResponse.data;
         setTotalUsers(total || 0);
         setUserCount(users || 0);
         setAdminCount(admins || 0);
 
-        // Fetch destination counts
-        console.log("Fetching from /api/destinations/counts...");
         const destinationResponse = await axios.get("http://localhost:5000/api/destinations/counts");
-        console.log("Response from /api/destinations/counts:", destinationResponse.data);
         const { total: totalDest, domestic, international } = destinationResponse.data;
         setTotalDestinations(totalDest || 0);
         setDomesticCount(domestic || 0);
         setInternationalCount(international || 0);
-
       } catch (error) {
-        console.error("Fetch error:", {
-          message: error.message,
-          status: error.response?.status,
-          data: error.response?.data,
-        });
         if (error.response?.status === 401) {
           setError("Unauthorized: Invalid or expired token. Please log in again.");
           navigate("/admin");
@@ -65,42 +46,28 @@ const Dashboard = () => {
         }
       }
     };
-
     fetchData();
   }, [navigate]);
 
   if (error) {
-    return <div style={{ color: "red", textAlign: "center", padding: "20px" }}>{error}</div>;
+    return <div className="text-red-500 text-center p-4">{error}</div>;
   }
 
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <div className="card-container">
-        <div className="card">
-          <h2>Total Users</h2>
-          <p>{totalUsers}</p>
-        </div>
-        <div className="card">
-          <h2>Regular Users</h2>
-          <p>{userCount}</p>
-        </div>
-        <div className="card">
-          <h2>Admins</h2>
-          <p>{adminCount}</p>
-        </div>
-        <div className="card">
-          <h2>Total Destinations</h2>
-          <p>{totalDestinations}</p>
-        </div>
-        <div className="card">
-          <h2>Domestic Destinations</h2>
-          <p>{domesticCount}</p>
-        </div>
-        <div className="card">
-          <h2>International Destinations</h2>
-          <p>{internationalCount}</p>
-        </div>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Dashboard</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+        {[{ title: "Total Users", count: totalUsers },
+          { title: "Regular Users", count: userCount },
+          { title: "Admins", count: adminCount },
+          { title: "Total Destinations", count: totalDestinations },
+          { title: "Domestic Destinations", count: domesticCount },
+          { title: "International Destinations", count: internationalCount }].map((item, index) => (
+          <div key={index} className="bg-white p-6 rounded-lg shadow-md text-center">
+            <h2 className="text-xl font-semibold text-gray-700">{item.title}</h2>
+            <p className="text-2xl font-bold text-blue-600 mt-2">{item.count}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
