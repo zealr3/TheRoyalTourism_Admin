@@ -26,6 +26,15 @@ const Sidebar = () => {
         <ListItem button component={Link} to="/Adminpackages">
           <ListItemText primary="Manage Packages" />
         </ListItem>
+        <ListItem button component={Link} to="/AdminFoodManagement">
+          <ListItemText primary="Food Managment" />
+        </ListItem>
+        <ListItem button component={Link} to="/AdminActivityManagement">
+          <ListItemText primary="Acctivity Managment" />
+        </ListItem>
+        <ListItem button component={Link} to="/AdminPlacesManagement">
+          <ListItemText primary="Places Managment" />
+        </ListItem>
       </List>
     </div>
   );

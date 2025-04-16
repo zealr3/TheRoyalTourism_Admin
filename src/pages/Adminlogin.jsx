@@ -132,7 +132,7 @@ const AdminLogin = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between">
+                        {/* <div className="flex items-center justify-between">
                             <div className="flex items-center">
                                 <input
                                     id="remember-me"
@@ -150,7 +150,7 @@ const AdminLogin = () => {
                                     Forgot password?
                                 </a>
                             </div>
-                        </div>
+                        </div> */}
 
                         <div>
                             <button
@@ -176,11 +176,11 @@ const AdminLogin = () => {
                     </form>
                 </div>
                 
-                <div className="text-center mt-4">
+                {/* <div className="text-center mt-4">
                     <p className="text-sm text-gray-600">
                         Need help? <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">Contact support</a>
                     </p>
-                </div>
+                </div> */}
             </div>
         </div>
     );

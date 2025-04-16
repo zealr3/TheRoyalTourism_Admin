@@ -11,6 +11,10 @@ import AdminPackages from "./pages/Adminpackage"; // ✅ Corrected import
 import AddPackge from "./pages/Addpackages";
 import "./styles.css";
 import "./index.css";
+import AdminFoodManagement from "./pages/ViewFood";
+import AdminActivityManagement from "./pages/AdminActivityManagment";
+import AdminPlacesManagement from "./pages/AdminPlacesManagment";
+
 
 // ✅ ProtectedRoute component
 const ProtectedRoute = ({ children }) => {
@@ -63,6 +67,9 @@ const App = () => {
                   <Route path="/Adminpackages" element={<AdminPackages />} /> {/* ✅ Fixed path */}
                   <Route path="*" element={<Navigate to="/" replace />} />
                   <Route path="/addPackage" element={<AddPackge />} />
+                  <Route path="/AdminFoodManagement" element={<AdminFoodManagement />} />
+                  <Route path="/AdminActivityManagement" element={<AdminActivityManagement />} />
+                  <Route path="/AdminPlacesManagement" element={<AdminPlacesManagement/>} />
                 </Routes>
               </AdminLayout>
             </ProtectedRoute>

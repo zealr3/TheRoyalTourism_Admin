@@ -17,22 +17,17 @@ const AddPackage = () => {
   useEffect(() => {
     const fetchDestinations = async () => {
       try {
-        console.log("Fetching destinations...");
-        const response = await axios.get("http://localhost:5000/api/destinations");
-        console.log("Fetched destinations:", response.data);
-        if (Array.isArray(response.data)) {
-          setDestinations(response.data);
-        } else {
-          throw new Error("Invalid destinations response format");
-        }
-      } catch (error) {
-        console.error("Error fetching destinations:", error);
-        setPkgError("❌ Failed to fetch destinations.");
+        const res = await axios.get("http://localhost:5000/api/destinations");
+        console.log("Fetched destinations:", res.data);  // Log response here
+        setDestinations(res.data);
+      } catch (err) {
+        console.error("Failed to load destinations", err);
       }
     };
+  
     fetchDestinations();
   }, []);
-
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPackageData((prevState) => ({
