@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import AddFood from './AddFood'; // ✅ Make sure the path is correct
+import AddFood from './AddFood';
 
 const AdminFoodManagement = () => {
   const [foods, setFoods] = useState([]);
@@ -15,16 +15,16 @@ const AdminFoodManagement = () => {
     try {
       const token = localStorage.getItem('token') || '';
       const url = did
-        ? `http://localhost:5000/api/foods/list?did=${did}`
-        : 'http://localhost:5000/api/foods/list';
-      console.log('Fetching foods from:', url); // Debug
+        ? `http://localhost:5000/api/foods?did=${did}`
+        : 'http://localhost:5000/api/foods';
+      console.log('Fetching foods from:', url);
       const res = await axios.get(url, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      console.log('API response:', res.data); // Debug
-      setFoods(res.data.foods || res.data || []);
+      console.log('API response:', res.data);
+      setFoods(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error('Fetch error:', err.response || err); // Debug
+      console.error('Fetch error:', err.response || err);
       setError(err.response?.data?.error || 'Failed to fetch food data');
     } finally {
       setLoading(false);
@@ -34,17 +34,17 @@ const AdminFoodManagement = () => {
   const fetchDestinations = async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/destinations');
-      console.log('Destinations:', res.data); // Debug
-      setDestinations(res.data || []);
+      console.log('Destinations:', res.data);
+      setDestinations(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error('Destinations error:', err.response || err); // Debug
+      console.error('Destinations error:', err.response || err);
       setError('Failed to load destinations');
     }
   };
 
   useEffect(() => {
     fetchDestinations();
-    fetchFoods(); // Initial fetch
+    fetchFoods();
   }, []);
 
   const handleFilterChange = (e) => {
@@ -57,12 +57,10 @@ const AdminFoodManagement = () => {
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Food Management</h1>
 
-      {/* Add Food Form */}
       <div className="mb-8">
         <AddFood onFoodAdded={() => fetchFoods(selectedDid)} />
       </div>
 
-      {/* Filter by Destination */}
       <div className="mb-6">
         <label htmlFor="didFilter" className="block text-gray-700 mb-2 font-medium">
           Filter by Destination
@@ -76,13 +74,12 @@ const AdminFoodManagement = () => {
           <option value="">All Destinations</option>
           {destinations.map((dest) => (
             <option key={dest.did} value={dest.did}>
-              {dest.name}
+              {dest.dname}
             </option>
           ))}
         </select>
       </div>
 
-      {/* Food Data Table */}
       {error && <p className="text-red-600 mb-4">{error}</p>}
       {loading ? (
         <p className="text-gray-600">Loading...</p>

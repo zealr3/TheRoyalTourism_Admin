@@ -14,6 +14,7 @@ import "./index.css";
 import AdminFoodManagement from "./pages/ViewFood";
 import AdminActivityManagement from "./pages/AdminActivityManagment";
 import AdminPlacesManagement from "./pages/AdminPlacesManagment";
+import AdminTourManagement from "./pages/AdminTOurManagment";
 
 
 // ✅ ProtectedRoute component
@@ -70,6 +71,7 @@ const App = () => {
                   <Route path="/AdminFoodManagement" element={<AdminFoodManagement />} />
                   <Route path="/AdminActivityManagement" element={<AdminActivityManagement />} />
                   <Route path="/AdminPlacesManagement" element={<AdminPlacesManagement/>} />
+                  <Route path="/AdminTourManagement" element={<AdminTourManagement/>} />
                 </Routes>
               </AdminLayout>
             </ProtectedRoute>
