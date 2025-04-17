@@ -4,19 +4,18 @@ import AddFood from './AddFood';
 
 const AdminFoodManagement = () => {
   const [foods, setFoods] = useState([]);
-  const [destinations, setDestinations] = useState([]);
-  const [selectedDid, setSelectedDid] = useState('');
+  const [Destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const fetchFoods = async (did = '') => {
+  const fetchFoods = async () => {
     setLoading(true);
     setError('');
+    setSuccess('');
     try {
       const token = localStorage.getItem('token') || '';
-      const url = did
-        ? `http://localhost:5000/api/foods?did=${did}`
-        : 'http://localhost:5000/api/foods';
+      const url = 'http://localhost:5000/api/foods';
       console.log('Fetching foods from:', url);
       const res = await axios.get(url, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -42,45 +41,52 @@ const AdminFoodManagement = () => {
     }
   };
 
+  const handleDelete = async (fid) => {
+    if (!window.confirm('Are you sure you want to delete this food item?')) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('You must be logged in to delete food items');
+        return;
+      }
+
+      console.log('Deleting food with ID:', fid);
+      await axios.delete(`http://localhost:5000/api/foods/${fid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setFoods((prev) => prev.filter((food) => food.fid !== fid));
+      setSuccess('Food item deleted successfully!');
+      setError('');
+    } catch (err) {
+      console.error('Delete error:', err.response || err);
+      setError(err.response?.data?.error || 'Failed to delete food item');
+    }
+  };
+
   useEffect(() => {
     fetchDestinations();
     fetchFoods();
   }, []);
 
-  const handleFilterChange = (e) => {
-    const did = e.target.value;
-    setSelectedDid(did);
-    fetchFoods(did);
-  };
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Food Management</h1>
 
       <div className="mb-8">
-        <AddFood onFoodAdded={() => fetchFoods(selectedDid)} />
-      </div>
-
-      <div className="mb-6">
-        <label htmlFor="didFilter" className="block text-gray-700 mb-2 font-medium">
-          Filter by Destination
-        </label>
-        <select
-          id="didFilter"
-          value={selectedDid}
-          onChange={handleFilterChange}
-          className="w-full max-w-xs p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">All Destinations</option>
-          {destinations.map((dest) => (
-            <option key={dest.did} value={dest.did}>
-              {dest.dname}
-            </option>
-          ))}
-        </select>
+        <AddFood onFoodAdded={fetchFoods} />
       </div>
 
       {error && <p className="text-red-600 mb-4">{error}</p>}
+      {success && <p className="text-green-600 mb-4 animate-pulse">{success}</p>}
       {loading ? (
         <p className="text-gray-600">Loading...</p>
       ) : (
@@ -92,12 +98,13 @@ const AdminFoodManagement = () => {
                 <th className="py-3 px-4 text-left">Food Detail</th>
                 <th className="py-3 px-4 text-left">Image</th>
                 <th className="py-3 px-4 text-left">Destination ID</th>
+                <th className="py-3 px-4 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               {foods.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="py-4 px-4 text-center text-gray-500">
+                  <td colSpan="5" className="py-4 px-4 text-center text-gray-500">
                     No food data found
                   </td>
                 </tr>
@@ -115,6 +122,14 @@ const AdminFoodManagement = () => {
                       />
                     </td>
                     <td className="py-3 px-4">{food.did}</td>
+                    <td className="py-3 px-4">
+                      <button
+                        onClick={() => handleDelete(food.fid)}
+                        className="text-red-600 hover:text-red-800 font-medium"
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}

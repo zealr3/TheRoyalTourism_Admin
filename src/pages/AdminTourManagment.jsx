@@ -1,12 +1,11 @@
+// src/components/AdminTourManagement.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const AdminTourManagement = () => {
   const [tours, setTours] = useState([]);
   const [packages, setPackages] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [newTour, setNewTour] = useState({
     tname: '',
     tday: '',
@@ -30,19 +29,29 @@ const AdminTourManagement = () => {
     iday7: '',
     tid: '',
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    fetchTours();
+    fetchPackages();
+  }, []);
 
   const fetchTours = async () => {
     setLoading(true);
     setError('');
     try {
       const token = localStorage.getItem('token') || '';
-      const res = await axios.get('http://localhost:5000/api/tours/details/0', {
+      const res = await axios.get('http://localhost:5000/api/tours/details', {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
+      console.log('Tours fetched:', res.data);
       setTours(res.data || []);
     } catch (err) {
-      console.error('Fetch error:', err.response || err);
-      setError(err.response?.data?.error || 'Failed to fetch tours');
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message;
+      console.error('Fetch tours error:', errorMessage);
+      setError(errorMessage || 'Failed to fetch tours');
     } finally {
       setLoading(false);
     }
@@ -51,20 +60,11 @@ const AdminTourManagement = () => {
   const fetchPackages = async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/packages');
-      console.log('Packages:', res.data);
+      console.log('Packages fetched:', res.data);
       setPackages(res.data || []);
     } catch (err) {
-      console.error('Packages error:', err.response || err);
-      setError('Failed to load packages');
+      console.error('Fetch packages error:', err.response?.data || err.message);
     }
-  };
-
-  const handleTourInputChange = (e) => {
-    setNewTour({ ...newTour, [e.target.name]: e.target.value });
-  };
-
-  const handleItineraryInputChange = (e) => {
-    setNewItinerary({ ...newItinerary, [e.target.name]: e.target.value });
   };
 
   const handleAddTour = async (e) => {
@@ -74,6 +74,7 @@ const AdminTourManagement = () => {
     setSuccess('');
     try {
       const { tname, tday, tpickup, timg1, timg2, timg3, timg4, toverview, thighlights, package_id } = newTour;
+      console.log(`Adding tour with package_id: ${package_id}`);
       if (!tname || !tday || !tpickup || !timg1 || !timg2 || !timg3 || !timg4 || !toverview || !thighlights || !package_id) {
         setError('All tour fields are required');
         setLoading(false);
@@ -89,8 +90,9 @@ const AdminTourManagement = () => {
       setNewTour({ tname: '', tday: '', tpickup: '', timg1: '', timg2: '', timg3: '', timg4: '', toverview: '', thighlights: '', package_id: '' });
       fetchTours();
     } catch (err) {
-      console.error('Add tour error:', err.response || err);
-      setError(err.response?.data?.error || 'Failed to add tour');
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message;
+      console.error('Add tour error:', errorMessage);
+      setError(errorMessage || 'Failed to add tour');
     } finally {
       setLoading(false);
     }
@@ -103,8 +105,9 @@ const AdminTourManagement = () => {
     setSuccess('');
     try {
       const { iname, iday1, iday2, iday3, iday4, iday5, iday6, iday7, tid } = newItinerary;
+      console.log(`Adding itinerary with tid: ${tid}`);
       if (!iname || !tid) {
-        setError('Name and tour ID are required');
+        setError('Itinerary name and tour selection are required');
         setLoading(false);
         return;
       }
@@ -116,400 +119,216 @@ const AdminTourManagement = () => {
       );
       setSuccess('Itinerary added successfully!');
       setNewItinerary({ iname: '', iday1: '', iday2: '', iday3: '', iday4: '', iday5: '', iday6: '', iday7: '', tid: '' });
-      fetchTours();
+      fetchTours(); // Refresh tours to include updated itineraries
     } catch (err) {
-      console.error('Add itinerary error:', err.response || err);
-      setError(err.response?.data?.error || 'Failed to add itinerary');
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message;
+      console.error('Add itinerary error:', errorMessage);
+      setError(errorMessage || 'Failed to add itinerary');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchPackages();
-    fetchTours();
-  }, []);
-
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-extrabold text-gray-900 mb-8">Tour Management</h1>
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-800 mb-8">Manage Tours & Itineraries</h1>
 
-      {/* Add Tour Form */}
-      <div className="w-full max-w-lg mb-12">
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">Add New Tour</h2>
-          {success && (
-            <p className="text-green-600 bg-green-100 p-3 rounded-md mb-6">{success}</p>
-          )}
-          {error && (
-            <p className="text-red-600 bg-red-100 p-3 rounded-md mb-6">{error}</p>
-          )}
-          <form onSubmit={handleAddTour}>
-            <div className="space-y-6">
-              <div>
-                <label htmlFor="tname" className="block text-sm font-medium text-gray-700 mb-1">
-                  Tour Name
-                </label>
-                <input
-                  type="text"
-                  id="tname"
-                  name="tname"
-                  value={newTour.tname}
-                  onChange={handleTourInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter tour name"
-                />
-              </div>
-              <div>
-                <label htmlFor="tday" className="block text-sm font-medium text-gray-700 mb-1">
-                  Duration (days)
-                </label>
-                <input
-                  type="number"
-                  id="tday"
-                  name="tday"
-                  value={newTour.tday}
-                  onChange={handleTourInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter number of days"
-                />
-              </div>
-              <div>
-                <label htmlFor="tpickup" className="block text-sm font-medium text-gray-700 mb-1">
-                  Pickup Location
-                </label>
-                <input
-                  type="text"
-                  id="tpickup"
-                  name="tpickup"
-                  value={newTour.tpickup}
-                  onChange={handleTourInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter pickup location"
-                />
-              </div>
-              <div>
-                <label htmlFor="timg1" className="block text-sm font-medium text-gray-700 mb-1">
-                  Image 1 URL
-                </label>
-                <input
-                  type="text"
-                  id="timg1"
-                  name="timg1"
-                  value={newTour.timg1}
-                  onChange={handleTourInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter image URL"
-                />
-              </div>
-              <div>
-                <label htmlFor="timg2" className="block text-sm font-medium text-gray-700 mb-1">
-                  Image 2 URL
-                </label>
-                <input
-                  type="text"
-                  id="timg2"
-                  name="timg2"
-                  value={newTour.timg2}
-                  onChange={handleTourInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter image URL"
-                />
-              </div>
-              <div>
-                <label htmlFor="timg3" className="block text-sm font-medium text-gray-700 mb-1">
-                  Image 3 URL
-                </label>
-                <input
-                  type="text"
-                  id="timg3"
-                  name="timg3"
-                  value={newTour.timg3}
-                  onChange={handleTourInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter image URL"
-                />
-              </div>
-              <div>
-                <label htmlFor="timg4" className="block text-sm font-medium text-gray-700 mb-1">
-                  Image 4 URL
-                </label>
-                <input
-                  type="text"
-                  id="timg4"
-                  name="timg4"
-                  value={newTour.timg4}
-                  onChange={handleTourInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter image URL"
-                />
-              </div>
-              <div>
-                <label htmlFor="toverview" className="block text-sm font-medium text-gray-700 mb-1">
-                  Overview
-                </label>
-                <textarea
-                  id="toverview"
-                  name="toverview"
-                  value={newTour.toverview}
-                  onChange={handleTourInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter tour overview"
-                  rows="4"
-                />
-              </div>
-              <div>
-                <label htmlFor="thighlights" className="block text-sm font-medium text-gray-700 mb-1">
-                  Highlights
-                </label>
-                <textarea
-                  id="thighlights"
-                  name="thighlights"
-                  value={newTour.thighlights}
-                  onChange={handleTourInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter tour highlights"
-                  rows="4"
-                />
-              </div>
-              <div>
-                <label htmlFor="package_id" className="block text-sm font-medium text-gray-700 mb-1">
-                  Package
-                </label>
-                <select
-                  id="package_id"
-                  name="package_id"
-                  value={newTour.package_id}
-                  onChange={handleTourInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Select a package</option>
-                  {packages.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full py-3 rounded-lg text-white font-medium ${
-                  loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-                } transition-colors`}
-              >
-                {loading ? 'Adding...' : 'Add Tour'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+        {error && (
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">{error}</div>
+        )}
+        {success && (
+          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6">{success}</div>
+        )}
 
-      {/* Add Itinerary Form */}
-      <div className="w-full max-w-lg mb-12">
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">Add New Itinerary</h2>
-          <form onSubmit={handleAddItinerary}>
-            <div className="space-y-6">
-              <div>
-                <label htmlFor="iname" className="block text-sm font-medium text-gray-700 mb-1">
-                  Itinerary Name
-                </label>
-                <input
-                  type="text"
-                  id="iname"
-                  name="iname"
-                  value={newItinerary.iname}
-                  onChange={handleItineraryInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter itinerary name"
-                />
-              </div>
-              <div>
-                <label htmlFor="iday1" className="block text-sm font-medium text-gray-700 mb-1">
-                  Day 1
-                </label>
-                <textarea
-                  id="iday1"
-                  name="iday1"
-                  value={newItinerary.iday1}
-                  onChange={handleItineraryInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter Day 1 plan"
-                  rows="3"
-                />
-              </div>
-              <div>
-                <label htmlFor="iday2" className="block text-sm font-medium text-gray-700 mb-1">
-                  Day 2
-                </label>
-                <textarea
-                  id="iday2"
-                  name="iday2"
-                  value={newItinerary.iday2}
-                  onChange={handleItineraryInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter Day 2 plan"
-                  rows="3"
-                />
-              </div>
-              <div>
-                <label htmlFor="iday3" className="block text-sm font-medium text-gray-700 mb-1">
-                  Day 3
-                </label>
-                <textarea
-                  id="iday3"
-                  name="iday3"
-                  value={newItinerary.iday3}
-                  onChange={handleItineraryInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter Day 3 plan"
-                  rows="3"
-                />
-              </div>
-              <div>
-                <label htmlFor="iday4" className="block text-sm font-medium text-gray-700 mb-1">
-                  Day 4
-                </label>
-                <textarea
-                  id="iday4"
-                  name="iday4"
-                  value={newItinerary.iday4}
-                  onChange={handleItineraryInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter Day 4 plan"
-                  rows="3"
-                />
-              </div>
-              <div>
-                <label htmlFor="iday5" className="block text-sm font-medium text-gray-700 mb-1">
-                  Day 5
-                </label>
-                <textarea
-                  id="iday5"
-                  name="iday5"
-                  value={newItinerary.iday5}
-                  onChange={handleItineraryInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter Day 5 plan"
-                  rows="3"
-                />
-              </div>
-              <div>
-                <label htmlFor="iday6" className="block text-sm font-medium text-gray-700 mb-1">
-                  Day 6
-                </label>
-                <textarea
-                  id="iday6"
-                  name="iday6"
-                  value={newItinerary.iday6}
-                  onChange={handleItineraryInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter Day 6 plan"
-                  rows="3"
-                />
-              </div>
-              <div>
-                <label htmlFor="iday7" className="block text-sm font-medium text-gray-700 mb-1">
-                  Day 7
-                </label>
-                <textarea
-                  id="iday7"
-                  name="iday7"
-                  value={newItinerary.iday7}
-                  onChange={handleItineraryInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter Day 7 plan"
-                  rows="3"
-                />
-              </div>
-              <div>
-                <label htmlFor="tid" className="block text-sm font-medium text-gray-700 mb-1">
-                  Tour
-                </label>
-                <select
-                  id="tid"
-                  name="tid"
-                  value={newItinerary.tid}
-                  onChange={handleItineraryInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Select a tour</option>
-                  {tours.map((t) => (
-                    <option key={t.tid} value={t.tid}>
-                      {t.tname}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full py-3 rounded-lg text-white font-medium ${
-                  loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-                } transition-colors`}
-              >
-                {loading ? 'Adding...' : 'Add Itinerary'}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+        {/* Tour Form */}
+        <form onSubmit={handleAddTour} className="bg-white p-6 rounded-lg shadow-md mb-8">
+          <h2 className="text-xl font-semibold mb-4">Add New Tour</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder="Tour Name"
+              value={newTour.tname}
+              onChange={(e) => setNewTour({ ...newTour, tname: e.target.value })}
+              className="p-2 border rounded"
+            />
+            <input
+              type="number"
+              placeholder="Days"
+              value={newTour.tday}
+              onChange={(e) => setNewTour({ ...newTour, tday: e.target.value })}
+              className="p-2 border rounded"
+            />
+            <input
+              type="text"
+              placeholder="Pickup Location"
+              value={newTour.tpickup}
+              onChange={(e) => setNewTour({ ...newTour, tpickup: e.target.value })}
+              className="p-2 border rounded"
+            />
+            <input
+              type="text"
+              placeholder="Image 1 URL"
+              value={newTour.timg1}
+              onChange={(e) => setNewTour({ ...newTour, timg1: e.target.value })}
+              className="p-2 border rounded"
+            />
+            <input
+              type="text"
+              placeholder="Image 2 URL"
+              value={newTour.timg2}
+              onChange={(e) => setNewTour({ ...newTour, timg2: e.target.value })}
+              className="p-2 border rounded"
+            />
+            <input
+              type="text"
+              placeholder="Image 3 URL"
+              value={newTour.timg3}
+              onChange={(e) => setNewTour({ ...newTour, timg3: e.target.value })}
+              className="p-2 border rounded"
+            />
+            <input
+              type="text"
+              placeholder="Image 4 URL"
+              value={newTour.timg4}
+              onChange={(e) => setNewTour({ ...newTour, timg4: e.target.value })}
+              className="p-2 border rounded"
+            />
+            <textarea
+              placeholder="Overview"
+              value={newTour.toverview}
+              onChange={(e) => setNewTour({ ...newTour, toverview: e.target.value })}
+              className="p-2 border rounded col-span-2"
+            />
+            <textarea
+              placeholder="Highlights"
+              value={newTour.thighlights}
+              onChange={(e) => setNewTour({ ...newTour, thighlights: e.target.value })}
+              className="p-2 border rounded col-span-2"
+            />
+            <select
+              value={newTour.package_id}
+              onChange={(e) => setNewTour({ ...newTour, package_id: e.target.value })}
+              className="p-2 border rounded"
+            >
+              <option value="">Select Package</option>
+              {packages.map((pkg) => (
+                <option key={pkg.id} value={pkg.id}>{pkg.name}</option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 disabled:bg-gray-400"
+          >
+            {loading ? 'Adding...' : 'Add Tour'}
+          </button>
+        </form>
 
-      {/* Tours and Itineraries Table */}
-      <div className="w-full max-w-4xl">
-        {loading ? (
-          <p className="text-gray-600 text-center">Loading...</p>
-        ) : (
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <table className="w-full">
+        {/* Itinerary Form */}
+        <form onSubmit={handleAddItinerary} className="bg-white p-6 rounded-lg shadow-md mb-8">
+          <h2 className="text-xl font-semibold mb-4">Add New Itinerary</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder="Itinerary Name"
+              value={newItinerary.iname}
+              onChange={(e) => setNewItinerary({ ...newItinerary, iname: e.target.value })}
+              className="p-2 border rounded"
+            />
+            <select
+              value={newItinerary.tid}
+              onChange={(e) => setNewItinerary({ ...newItinerary, tid: e.target.value })}
+              className="p-2 border rounded"
+            >
+              <option value="">Select Tour</option>
+              {tours.map((tour) => (
+                <option key={tour.tid} value={tour.tid}>{tour.tname}</option>
+              ))}
+            </select>
+            <textarea
+              placeholder="Day 1"
+              value={newItinerary.iday1}
+              onChange={(e) => setNewItinerary({ ...newItinerary, iday1: e.target.value })}
+              className="p-2 border rounded col-span-2"
+            />
+            <textarea
+              placeholder="Day 2"
+              value={newItinerary.iday2}
+              onChange={(e) => setNewItinerary({ ...newItinerary, iday2: e.target.value })}
+              className="p-2 border rounded col-span-2"
+            />
+            <textarea
+              placeholder="Day 3"
+              value={newItinerary.iday3}
+              onChange={(e) => setNewItinerary({ ...newItinerary, iday3: e.target.value })}
+              className="p-2 border rounded col-span-2"
+            />
+            <textarea
+              placeholder="Day 4"
+              value={newItinerary.iday4}
+              onChange={(e) => setNewItinerary({ ...newItinerary, iday4: e.target.value })}
+              className="p-2 border rounded col-span-2"
+            />
+            <textarea
+              placeholder="Day 5"
+              value={newItinerary.iday5}
+              onChange={(e) => setNewItinerary({ ...newItinerary, iday5: e.target.value })}
+              className="p-2 border rounded col-span-2"
+            />
+            <textarea
+              placeholder="Day 6"
+              value={newItinerary.iday6}
+              onChange={(e) => setNewItinerary({ ...newItinerary, iday6: e.target.value })}
+              className="p-2 border rounded col-span-2"
+            />
+            <textarea
+              placeholder="Day 7"
+              value={newItinerary.iday7}
+              onChange={(e) => setNewItinerary({ ...newItinerary, iday7: e.target.value })}
+              className="p-2 border rounded col-span-2"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-4 bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700 disabled:bg-gray-400"
+          >
+            {loading ? 'Adding...' : 'Add Itinerary'}
+          </button>
+        </form>
+
+        {/* Existing Tours Table */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Existing Tours</h2>
+          {loading ? (
+            <p>Loading...</p>
+          ) : tours.length === 0 ? (
+            <p>No tours found.</p>
+          ) : (
+            <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-gray-200 text-gray-600 uppercase text-xs">
-                  <th className="py-4 px-6 text-left">Tour ID</th>
-                  <th className="py-4 px-6 text-left">Tour Name</th>
-                  <th className="py-4 px-6 text-left">Duration</th>
-                  <th className="py-4 px-6 text-left">Pickup</th>
-                  <th className="py-4 px-6 text-left">Itinerary Name</th>
-                  <th className="py-4 px-6 text-left">Days</th>
+                <tr className="bg-gray-100">
+                  <th className="border p-2">Name</th>
+                  <th className="border p-2">Days</th>
+                  <th className="border p-2">Pickup</th>
+                  <th className="border p-2">Package</th>
                 </tr>
               </thead>
               <tbody>
-                {tours.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="py-6 px-6 text-center text-gray-500">
-                      No tours found
-                    </td>
+                {tours.map((tour) => (
+                  <tr key={tour.tid}>
+                    <td className="border p-2">{tour.tname}</td>
+                    <td className="border p-2">{tour.tday}</td>
+                    <td className="border p-2">{tour.tpickup}</td>
+                    <td className="border p-2">{tour.package_id}</td>
                   </tr>
-                ) : (
-                  tours.map((tour) => (
-                    <React.Fragment key={tour.tid}>
-                      <tr className="border-b hover:bg-gray-50 transition-colors">
-                        <td className="py-4 px-6">{tour.tid}</td>
-                        <td className="py-4 px-6">{tour.tname}</td>
-                        <td className="py-4 px-6">{tour.tday} days</td>
-                        <td className="py-4 px-6">{tour.tpickup}</td>
-                        <td className="py-4 px-6">-</td>
-                        <td className="py-4 px-6">-</td>
-                      </tr>
-                      {tour.itineraries && tour.itineraries.map((itinerary) => (
-                        <tr key={itinerary.iid} className="border-b hover:bg-gray-50 transition-colors">
-                          <td className="py-4 px-6"></td>
-                          <td className="py-4 px-6"></td>
-                          <td className="py-4 px-6"></td>
-                          <td className="py-4 px-6"></td>
-                          <td className="py-4 px-6">{itinerary.iname}</td>
-                          <td className="py-4 px-6">
-                            {[1, 2, 3, 4, 5, 6, 7].filter(day => itinerary[`iday${day}`]).length} days
-                          </td>
-                        </tr>
-                      ))}
-                    </React.Fragment>
-                  ))
-                )}
+                ))}
               </tbody>
             </table>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

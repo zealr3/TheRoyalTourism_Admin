@@ -4,17 +4,15 @@ import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import Users from "./pages/Users";
 import Dashboard from "./pages/Dashboard";
-import Adddestination from "./pages/Adddestination";
-import ViewDestinations from "./pages/ViewDestinations";
 import AdminLogin from "./pages/Adminlogin";
-import AdminPackages from "./pages/Adminpackage"; // ✅ Corrected import
-import AddPackge from "./pages/Addpackages";
 import "./styles.css";
 import "./index.css";
 import AdminFoodManagement from "./pages/ViewFood";
 import AdminActivityManagement from "./pages/AdminActivityManagment";
 import AdminPlacesManagement from "./pages/AdminPlacesManagment";
 import AdminTourManagement from "./pages/AdminTOurManagment";
+import ManageDestinations from "./pages/ManageDestination";
+import ManagePackages from "./pages/ManagePackage";
 
 
 // ✅ ProtectedRoute component
@@ -63,15 +61,13 @@ const App = () => {
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/users" element={<Users />} />
                   <Route path="/settings" element={<div>Settings Page</div>} />
-                  <Route path="/adddestination" element={<Adddestination />} />
-                  <Route path="/view" element={<ViewDestinations />} />
-                  <Route path="/Adminpackages" element={<AdminPackages />} /> {/* ✅ Fixed path */}
                   <Route path="*" element={<Navigate to="/" replace />} />
-                  <Route path="/addPackage" element={<AddPackge />} />
                   <Route path="/AdminFoodManagement" element={<AdminFoodManagement />} />
                   <Route path="/AdminActivityManagement" element={<AdminActivityManagement />} />
                   <Route path="/AdminPlacesManagement" element={<AdminPlacesManagement/>} />
                   <Route path="/AdminTourManagement" element={<AdminTourManagement/>} />
+                  <Route path="/ManageDestinations" element={<ManageDestinations/>} />
+                  <Route path="/ManagePackage" element={<ManagePackages/>} />
                 </Routes>
               </AdminLayout>
             </ProtectedRoute>

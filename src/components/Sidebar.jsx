@@ -13,18 +13,11 @@ const Sidebar = () => {
         <ListItem button component={Link} to="/Users">   
           <ListItemText primary="Users" />
         </ListItem>
-
-        <ListItem button component={Link} to="/Adddestination">  
-          <ListItemText primary="Add Destination" />
+        <ListItem button component={Link} to="/ManageDestinations">
+          <ListItemText primary="Manage Destinations" />
         </ListItem>
-        <ListItem button component={Link} to="/AddPackage">  
-          <ListItemText primary="Add Packages" />
-        </ListItem>
-        <ListItem button component={Link} to="/view">  
-          <ListItemText primary="View Destinations" />
-        </ListItem>
-        <ListItem button component={Link} to="/Adminpackages">
-          <ListItemText primary="Manage Packages" />
+        <ListItem button component={Link} to="/ManagePackage">
+          <ListItemText primary="Manage Package" />
         </ListItem>
         <ListItem button component={Link} to="/AdminFoodManagement">
           <ListItemText primary="Food Managment" />

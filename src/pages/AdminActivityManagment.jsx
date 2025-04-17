@@ -20,6 +20,7 @@ const AdminActivityManagement = () => {
   const fetchActivities = async (did = '') => {
     setLoading(true);
     setError('');
+    setSuccess('');
     try {
       const token = localStorage.getItem('token') || '';
       const url = did
@@ -66,10 +67,15 @@ const AdminActivityManagement = () => {
         return;
       }
       const token = localStorage.getItem('token') || '';
+      if (!token) {
+        setError('You must be logged in to add activities');
+        setLoading(false);
+        return;
+      }
       await axios.post(
         'http://localhost:5000/api/activities',
         { adetail, alocation, aactivity, aimg, best_time, did: parseInt(did) },
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setSuccess('Activity added successfully!');
       setNewActivity({
@@ -89,6 +95,35 @@ const AdminActivityManagement = () => {
     }
   };
 
+  const handleDelete = async (aid) => {
+    if (!window.confirm('Are you sure you want to delete this activity?')) return;
+
+    setLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('You must be logged in to delete activities');
+        setLoading(false);
+        return;
+      }
+
+      console.log('Deleting activity with ID:', aid);
+      await axios.delete(`http://localhost:5000/api/activities/${aid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setActivities((prev) => prev.filter((activity) => activity.aid !== aid));
+      setSuccess('Activity deleted successfully!');
+    } catch (err) {
+      console.error('Delete error:', err.response || err);
+      setError(err.response?.data?.error || 'Failed to delete activity');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFilterChange = (e) => {
     const did = e.target.value;
     setSelectedDid(did);
@@ -100,6 +135,13 @@ const AdminActivityManagement = () => {
     fetchActivities();
   }, []);
 
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-extrabold text-gray-900 mb-8">Activity Management</h1>
@@ -109,7 +151,7 @@ const AdminActivityManagement = () => {
         <div className="bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-2xl font-semibold text-gray-800 mb-6">Add New Activity</h2>
           {success && (
-            <p className="text-green-600 bg-green-100 p-3 rounded-md mb-6">{success}</p>
+            <p className="text-green-600 bg-green-100 p-3 rounded-md mb-6 animate-pulse">{success}</p>
           )}
           {error && (
             <p className="text-red-600 bg-red-100 p-3 rounded-md mb-6">{error}</p>
@@ -218,7 +260,7 @@ const AdminActivityManagement = () => {
                   <option value="">Select a destination</option>
                   {destinations.map((d) => (
                     <option key={d.did} value={d.did}>
-                      {d.name}
+                      {d.dname || d.name}
                     </option>
                   ))}
                 </select>
@@ -256,14 +298,14 @@ const AdminActivityManagement = () => {
           <option value="">All Destinations</option>
           {destinations.map((d) => (
             <option key={d.did} value={d.did}>
-              {d.name}
+              {d.dname || d.name}
             </option>
           ))}
         </select>
       </div>
 
       {/* Activity Data Table */}
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-7xl">
         {loading ? (
           <p className="text-gray-600 text-center">Loading...</p>
         ) : (
@@ -278,13 +320,14 @@ const AdminActivityManagement = () => {
                   <th className="py-4 px-6 text-left">Image</th>
                   <th className="py-4 px-6 text-left">Best Time</th>
                   <th className="py-4 px-6 text-left">Destination ID</th>
+                  <th className="py-4 px-6 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {activities.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="7"
+                      colSpan="8"
                       className="py-6 px-6 text-center text-gray-500"
                     >
                       No activities found
@@ -314,6 +357,14 @@ const AdminActivityManagement = () => {
                       </td>
                       <td className="py-4 px-6">{a.best_time}</td>
                       <td className="py-4 px-6">{a.did}</td>
+                      <td className="py-4 px-6">
+                        <button
+                          onClick={() => handleDelete(a.aid)}
+                          className="text-red-600 hover:text-red-800 font-medium"
+                        >
+                          Delete
+                        </button>
+                      </td>
                     </tr>
                   ))
                 )}

@@ -19,6 +19,7 @@ const AdminPlaceManagement = () => {
   const fetchPlaces = async (did = '') => {
     setLoading(true);
     setError('');
+    setSuccess('');
     try {
       const token = localStorage.getItem('token') || '';
       const url = did
@@ -30,7 +31,14 @@ const AdminPlaceManagement = () => {
       });
       setPlaces(res.data.places || res.data || []);
     } catch (err) {
-      console.error('Fetch error:', err.response || err);
+      console.error('Fetch error:', {
+        message: err.message,
+        response: err.response ? {
+          status: err.response.status,
+          data: err.response.data,
+          headers: err.response.headers,
+        } : null,
+      });
       setError(err.response?.data?.error || 'Failed to fetch place data');
     } finally {
       setLoading(false);
@@ -43,8 +51,14 @@ const AdminPlaceManagement = () => {
       console.log('Destinations:', res.data);
       setDestinations(res.data || []);
     } catch (err) {
-      console.error('Destinations error:', err.response || err);
-      setError('Failed to load destinations');
+      console.error('Destinations error:', {
+        message: err.message,
+        response: err.response ? {
+          status: err.response.status,
+          data: err.response.data,
+        } : null,
+      });
+      setError(err.response?.data?.error || 'Failed to load destinations');
     }
   };
 
@@ -65,17 +79,65 @@ const AdminPlaceManagement = () => {
         return;
       }
       const token = localStorage.getItem('token') || '';
+      if (!token) {
+        setError('You must be logged in to add places');
+        setLoading(false);
+        return;
+      }
       await axios.post(
         'http://localhost:5000/api/places',
         { pl_detail, pl_best_time, pl_location, pl_img, did: parseInt(did) },
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setSuccess('Place added successfully!');
       setNewPlace({ pl_detail: '', pl_best_time: '', pl_location: '', pl_img: '', did: '' });
       fetchPlaces(selectedDid);
     } catch (err) {
-      console.error('Add place error:', err.response || err);
+      console.error('Add place error:', {
+        message: err.message,
+        response: err.response ? {
+          status: err.response.status,
+          data: err.response.data,
+        } : null,
+      });
       setError(err.response?.data?.error || 'Failed to add place');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (pl_id) => {
+    if (!window.confirm('Are you sure you want to delete this place?')) return;
+
+    setLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('You must be logged in to delete places');
+        setLoading(false);
+        return;
+      }
+
+      console.log('Deleting place with ID:', pl_id);
+      await axios.delete(`http://localhost:5000/api/places/${pl_id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setPlaces((prev) => prev.filter((place) => place.pl_id !== pl_id));
+      setSuccess('Place deleted successfully!');
+    } catch (err) {
+      console.error('Delete error:', {
+        message: err.message,
+        response: err.response ? {
+          status: err.response.status,
+          data: err.response.data,
+          headers: err.response.headers,
+        } : null,
+        pl_id,
+      });
+      setError(err.response?.data?.error || 'Failed to delete place');
     } finally {
       setLoading(false);
     }
@@ -92,6 +154,13 @@ const AdminPlaceManagement = () => {
     fetchPlaces();
   }, []);
 
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-extrabold text-gray-900 mb-8">Place Management</h1>
@@ -101,7 +170,7 @@ const AdminPlaceManagement = () => {
         <div className="bg-white rounded-xl shadow-lg p-8">
           <h2 className="text-2xl font-semibold text-gray-800 mb-6">Add New Place</h2>
           {success && (
-            <p className="text-green-600 bg-green-100 p-3 rounded-md mb-6">{success}</p>
+            <p className="text-green-600 bg-green-100 p-3 rounded-md mb-6 animate-pulse">{success}</p>
           )}
           {error && (
             <p className="text-red-600 bg-red-100 p-3 rounded-md mb-6">{error}</p>
@@ -193,7 +262,7 @@ const AdminPlaceManagement = () => {
                   <option value="">Select a destination</option>
                   {destinations.map((d) => (
                     <option key={d.did} value={d.did}>
-                      {d.name}
+                      {d.dname || d.name}
                     </option>
                   ))}
                 </select>
@@ -231,14 +300,14 @@ const AdminPlaceManagement = () => {
           <option value="">All Destinations</option>
           {destinations.map((d) => (
             <option key={d.did} value={d.did}>
-              {d.name}
+              {d.dname || d.name}
             </option>
           ))}
         </select>
       </div>
 
       {/* Place Data Table */}
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-6xl">
         {loading ? (
           <p className="text-gray-600 text-center">Loading...</p>
         ) : (
@@ -252,13 +321,14 @@ const AdminPlaceManagement = () => {
                   <th className="py-4 px-6 text-left">Image</th>
                   <th className="py-4 px-6 text-left">Best Time</th>
                   <th className="py-4 px-6 text-left">Destination ID</th>
+                  <th className="py-4 px-6 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {places.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="6"
+                      colSpan="7"
                       className="py-6 px-6 text-center text-gray-500"
                     >
                       No places found
@@ -287,6 +357,14 @@ const AdminPlaceManagement = () => {
                       </td>
                       <td className="py-4 px-6">{p.pl_best_time}</td>
                       <td className="py-4 px-6">{p.did}</td>
+                      <td className="py-4 px-6">
+                        <button
+                          onClick={() => handleDelete(p.pl_id)}
+                          className="text-red-600 hover:text-red-800 font-medium"
+                        >
+                          Delete
+                        </button>
+                      </td>
                     </tr>
                   ))
                 )}
