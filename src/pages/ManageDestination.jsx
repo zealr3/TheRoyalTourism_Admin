@@ -159,13 +159,13 @@ const ManageDestinations = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <header className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-indigo-800 mb-2">Manage Destinations</h1>
+          <h1 className="text-4xl font-bold text-[#8C387C] mb-2">Manage Destinations</h1>
           <p className="text-gray-600 mb-6">Add, view, edit, or delete destinations</p>
         </header>
 
         {/* Add Destination Form */}
         <div className="w-full max-w-md mx-auto bg-white shadow-md rounded-lg p-6 mb-12">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Add New Destination</h2>
+          <h2 className="text-2xl font-bold text-center text-[#05073D] mb-4">Add New Destination</h2>
           {destError && <p className="text-red-500 text-center mb-2">{destError}</p>}
           {destSuccess && <p className="text-green-500 text-center mb-2 animate-pulse">{destSuccess}</p>}
           <form onSubmit={handleDestinationSubmit} className="space-y-4">
@@ -207,7 +207,7 @@ const ManageDestinations = () => {
             </select>
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition"
+              className="w-full bg-[#8C387C] text-white py-2 px-4 rounded-md hover:bg-[#79306b] transition"
             >
               Add Destination
             </button>
@@ -219,7 +219,7 @@ const ManageDestinations = () => {
           <button
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-full transition ${
-              filter === 'all' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              filter === 'all' ? 'bg-[#8C387C] text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
             All Destinations
@@ -227,7 +227,7 @@ const ManageDestinations = () => {
           <button
             onClick={() => setFilter('domestic')}
             className={`px-4 py-2 rounded-full transition ${
-              filter === 'domestic' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              filter === 'domestic' ? 'bg-[#8C387C] text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
             Domestic
@@ -235,7 +235,7 @@ const ManageDestinations = () => {
           <button
             onClick={() => setFilter('international')}
             className={`px-4 py-2 rounded-full transition ${
-              filter === 'international' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              filter === 'international' ? 'bg-[#8C387C] text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
             International
@@ -256,8 +256,8 @@ const ManageDestinations = () => {
 
         {/* Destinations List */}
         {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div>
+          <div className="flex justify-center items-center h-64 ">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#8C387C] border-t-transparent"></div>
           </div>
         ) : filteredDestinations.length === 0 ? (
           <div className="text-center text-gray-600 py-12">
@@ -265,7 +265,7 @@ const ManageDestinations = () => {
             {filter !== 'all' && <p className="mt-2">Try changing your filter selection</p>}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ml-56 gap-8">
             {filteredDestinations.map((destination) => (
               <div
                 key={destination.did}
@@ -278,13 +278,13 @@ const ManageDestinations = () => {
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                     onError={(e) => (e.target.src = 'https://via.placeholder.com/400x300')}
                   />
-                  <span className="absolute top-4 right-4 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="absolute top-4 right-4 bg-[#8C387C] text-white text-xs font-bold px-3 py-1 rounded-full">
                     {destination.dtype === 'domestic' ? 'Domestic' : 'International'}
                   </span>
                 </div>
                 <div className="p-6 flex-1 flex flex-col">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-2">{destination.name}</h3>
-                  <p className="text-gray-600 mb-6 flex-1">{destination.description}</p>
+                  <h3 className="text-2xl font-bold text-[#8C387C] mb-2">{destination.name}</h3>
+                  <p className="text-[#05073D] mb-6 flex-1">{destination.description}</p>
                   <div className="grid grid-cols-2 gap-4">
                     <button
                       className="flex items-center justify-center bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-medium py-2 px-4 rounded-md transition-colors duration-200"

@@ -13,7 +13,7 @@ const Sidebar = () => {
           className="flex items-center p-2 rounded-lg hover:bg-gray-200 transition-colors"
         >
           <i className="bi bi-grid mr-3 text-gray-600"></i>
-          <ListItemText primary="Royal Dashboard" />
+          <ListItemText primary="Royal Dashboard " />
         </ListItem>
         <ListItem
           button
@@ -82,5 +82,7 @@ const Sidebar = () => {
     </aside>
   );
 };
+
+
 
 export default Sidebar;
