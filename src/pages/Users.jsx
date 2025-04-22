@@ -37,11 +37,11 @@ const Users = () => {
     if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
 
     return (
-        <div className="p-6 bg-gray-100 min-h-screen">
-            <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Users</h1>
-            <div className="overflow-x-auto">
+        <div className="p-6 bg-gray-100 min-h-screen ">
+            <h1 className="text-3xl font-bold text-[#8C387C] ml-56  mb-6">Users</h1>
+            <div className="overflow-x-auto ml-56">
                 <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-                    <thead className="bg-blue-500 text-black">
+                    <thead className="bg-blue-500 text-white">
                         <tr>
                             <th className="py-3 px-4 text-left">ID</th>
                             <th className="py-3 px-4 text-left">Full Name</th>

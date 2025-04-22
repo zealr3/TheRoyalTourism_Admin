@@ -1,38 +1,85 @@
-import React from 'react';
-import '../styles.css';
-import { Link } from 'react-router-dom';
-import { List, ListItem, ListItemText } from '@mui/material';
+import React from "react";
+import { Link } from "react-router-dom";
+import { List, ListItem, ListItemText } from "@mui/material";
 
 const Sidebar = () => {
   return (
-    <div style={{ width: '200px', backgroundColor: '#f0f0f0', padding: '10px', height: '100vh' }}>
-      <List>
-        <ListItem button component={Link} to="/">
-          <ListItemText primary="Dashboard" />
+    <aside className="w-80 bg-white h-full p-4">
+      <List className="sidebar-nav">
+        <ListItem
+          button
+          component={Link}
+          to="/"
+          className="flex items-center p-2 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          <i className="bi bi-grid mr-3 text-gray-600"></i>
+          <ListItemText primary="Royal Dashboard" />
         </ListItem>
-        <ListItem button component={Link} to="/Users">   
+        <ListItem
+          button
+          component={Link}
+          to="/Users"
+          className="flex items-center p-2 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          <i className="bi bi-newspaper mr-3 text-gray-600"></i>
           <ListItemText primary="Users" />
         </ListItem>
-        <ListItem button component={Link} to="/ManageDestinations">
+        <ListItem
+          button
+          component={Link}
+          to="/ManageDestinations"
+          className="flex items-center p-2 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          <i className="bi bi-layout-text-window-reverse mr-3 text-gray-600"></i>
           <ListItemText primary="Manage Destinations" />
         </ListItem>
-        <ListItem button component={Link} to="/ManagePackage">
+        <ListItem
+          button
+          component={Link}
+          to="/ManagePackage"
+          className="flex items-center p-2 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          <i className="bi bi-layout-text-window-reverse mr-3 text-gray-600"></i>
           <ListItemText primary="Manage Package" />
         </ListItem>
-        <ListItem button component={Link} to="/AdminFoodManagement">
-          <ListItemText primary="Food Managment" />
+        <ListItem
+          button
+          component={Link}
+          to="/AdminFoodManagement"
+          className="flex items-center p-2 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          <i className="bi bi-layout-text-window-reverse mr-3 text-gray-600"></i>
+          <ListItemText primary="Food Management" />
         </ListItem>
-        <ListItem button component={Link} to="/AdminActivityManagement">
-          <ListItemText primary="Acctivity Managment" />
+        <ListItem
+          button
+          component={Link}
+          to="/AdminActivityManagement"
+          className="flex items-center p-2 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          <i className="bi bi-layout-text-window-reverse mr-3 text-gray-600"></i>
+          <ListItemText primary="Activity Management" />
         </ListItem>
-        <ListItem button component={Link} to="/AdminPlacesManagement">
-          <ListItemText primary="Places Managment" />
+        <ListItem
+          button
+          component={Link}
+          to="/AdminPlacesManagement"
+          className="flex items-center p-2 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          <i className="bi bi-layout-text-window-reverse mr-3 text-gray-600"></i>
+          <ListItemText primary="Places Management" />
         </ListItem>
-        <ListItem button component={Link} to="/AdminTourManagement">
-          <ListItemText primary="Tour Managment" />
+        <ListItem
+          button
+          component={Link}
+          to="/AdminTourManagement"
+          className="flex items-center p-2 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          <i className="bi bi-layout-text-window-reverse mr-3 text-gray-600"></i>
+          <ListItemText primary="Tour Management" />
         </ListItem>
       </List>
-    </div>
+    </aside>
   );
 };
 

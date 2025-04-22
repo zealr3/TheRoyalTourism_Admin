@@ -54,9 +54,9 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+    <div className="min-h-screen bg-gray-100 flex flex-col  p-6">
+      <h1 className="text-3xl font-bold mb-6 text-[#8C387C] pl-56">Dashboard</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ml-56 gap-6 w-full max-w-5xl">
         {[{ title: "Total Users", count: totalUsers },
           { title: "Regular Users", count: userCount },
           { title: "Admins", count: adminCount },
@@ -65,7 +65,7 @@ const Dashboard = () => {
           { title: "International Destinations", count: internationalCount }].map((item, index) => (
           <div key={index} className="bg-white p-6 rounded-lg shadow-md text-center">
             <h2 className="text-xl font-semibold text-gray-700">{item.title}</h2>
-            <p className="text-2xl font-bold text-blue-600 mt-2">{item.count}</p>
+            <p className="text-2xl font-bold text-[#8C387C] mt-2">{item.count}</p>
           </div>
         ))}
       </div>
