@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+
 const Dashboard = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [userCount, setUserCount] = useState(0);
@@ -54,21 +55,35 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col  p-6">
-      <h1 className="text-3xl font-bold mb-6 text-[#8C387C] pl-56">Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ml-56 gap-6 w-full max-w-5xl">
-        {[{ title: "Total Users", count: totalUsers },
-          { title: "Regular Users", count: userCount },
-          { title: "Admins", count: adminCount },
-          { title: "Total Destinations", count: totalDestinations },
-          { title: "Domestic Destinations", count: domesticCount },
-          { title: "International Destinations", count: internationalCount }].map((item, index) => (
-          <div key={index} className="bg-white p-6 rounded-lg shadow-md text-center">
-            <h2 className="text-xl font-semibold text-gray-700">{item.title}</h2>
-            <p className="text-2xl font-bold text-[#8C387C] mt-2">{item.count}</p>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-[#8C387C] ml-56">Dashboard</h1>
+      </div>
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 ml-56">
+        {[
+          { title: "Total Destinations", count: totalDestinations, icon: "/assets/Icons/allDestinations.png" },
+          { title: "Total Domestics", count: domesticCount, icon: "/assets/Icons/TotalDomestics.png" },
+          { title: "Total International", count: internationalCount, icon: "/assets/Icons/TotalInternational.png" },
+          { title: "Total Users", count: totalUsers, icon: "/assets/Icons/users.png" },
+          { title: "Regular Users", count: userCount, icon: "/assets/Icons/users.png" },
+          { title: "Admins", count: adminCount, icon: "/assets/Icons/users.png" },
+        ].map((item, index) => (
+          <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="p-4">
+              <h5 className="text-lg font-bold text-[#05073D] mb-2">{item.title}</h5>
+              <div className="flex items-center gap-2">
+                <img
+                  src={item.icon}
+                  alt={item.title}
+                  className="h-16 w-16"
+                  onError={(e) => (e.target.src = "/Images/Icons/placeholder.png")}
+                />
+                <h3 className="font-semibold text-[#8C387C]" style={{fontSize:"2rem"}}>{item.count}</h3>
+              </div>
+            </div>
           </div>
         ))}
-      </div>
+      </section>
     </div>
   );
 };
